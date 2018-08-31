@@ -195,6 +195,32 @@ def simple_zone_generators(zone_num, host_num, snapshot_events=0,
     return tg.get_trace_generators(test_entity_spec_list)
 
 
+def simple_trove_instance_generators(inst_num, snapshot_events=0,
+                                     snap_vals=None):
+    """A function for returning Trove instance generators.
+
+    Returns generators for a given number of Trove instances.
+
+    :param inst_num: number of instances
+    :return: generators for inst_num instances as specified
+    """
+
+    mapping = [('tr-instance-{0}'.format(idx), 'vm-{0}'.format(idx))
+               for idx in range(inst_num)]
+
+    test_entity_spec_list = [
+        {tg.DYNAMIC_INFO_FKEY: tg.DRIVER_TROVE_INSTANCE_SNAPSHOT_D,
+         tg.STATIC_INFO_FKEY: None,
+         tg.MAPPING_KEY: mapping,
+         tg.EXTERNAL_INFO_KEY: snap_vals,
+         tg.NAME_KEY: 'Instance (vm) snapshot generator',
+         tg.NUM_EVENTS: snapshot_events
+         }
+    ]
+
+    return tg.get_trace_generators(test_entity_spec_list)
+
+
 def simple_volume_generators(volume_num, instance_num,
                              snapshot_events=0, update_events=0,
                              snap_vals=None, update_vals=None):

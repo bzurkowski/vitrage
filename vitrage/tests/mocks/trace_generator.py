@@ -68,7 +68,8 @@ DRIVER_STACK_SNAPSHOT_D = 'driver_stack_snapshot_dynamic.json'
 DRIVER_CONSISTENCY_UPDATE_D = 'driver_consistency_update_dynamic.json'
 DRIVER_ZONE_SNAPSHOT_D = 'driver_zone_snapshot_dynamic.json'
 DRIVER_KUBE_SNAPSHOT_D = 'driver_kubernetes_snapshot_dynamic.json'
-
+DRIVER_TROVE_INSTANCE_SNAPSHOT_D = \
+    'driver_trove_instance_snapshot_dynamic.json'
 
 # Mock transformer Specs (i.e., what the transformer outputs)
 MOCK_TRANSFORMER_PATH = '%s/mock_configurations/transformer' % \
@@ -79,7 +80,6 @@ TRANS_DOCTOR_UPDATE_D = 'transformer_doctor_update_dynamic.json'
 TRANS_COLLECTD_UPDATE_D = 'transformer_collectd_update_dynamic.json'
 TRANS_PROMETHEUS_UPDATE_D = 'transformer_prometheus_update_dynamic.json'
 TRANS_INST_SNAPSHOT_D = 'transformer_inst_snapshot_dynamic.json'
-TRANS_INST_SNAPSHOT_S = 'transformer_inst_snapshot_static.json'
 TRANS_HOST_SNAPSHOT_D = 'transformer_host_snapshot_dynamic.json'
 TRANS_HOST_SNAPSHOT_S = 'transformer_host_snapshot_static.json'
 TRANS_ZONE_SNAPSHOT_D = 'transformer_zone_snapshot_dynamic.json'
@@ -138,7 +138,8 @@ class EventTraceGenerator(object):
              DRIVER_CONSISTENCY_UPDATE_D:
                  _get_consistency_update_driver_values,
              DRIVER_PROMETHEUS_UPDATE_D: _get_simple_update_driver_values,
-
+             DRIVER_TROVE_INSTANCE_SNAPSHOT_D:
+                _get_trove_instance_snapshot_driver_values,
              TRANS_AODH_SNAPSHOT_D: _get_trans_aodh_alarm_snapshot_values,
              TRANS_AODH_UPDATE_D: _get_trans_aodh_alarm_snapshot_values,
              TRANS_DOCTOR_UPDATE_D: _get_simple_trans_alarm_update_values,
@@ -671,6 +672,22 @@ def _get_zabbix_alarm_driver_values(spec):
         static_values.append(combine_data(
             static_info, host_info, spec.get(EXTERNAL_INFO_KEY, None)
         ))
+    return static_values
+
+
+def _get_trove_instance_snapshot_driver_values(spec):
+    inst_srv_mapping = spec[MAPPING_KEY]
+    static_info = None
+    if spec[STATIC_INFO_FKEY] is not None:
+        static_info = utils.load_specs(spec[STATIC_INFO_FKEY])
+    static_values = []
+
+    for inst_name, srv_name in inst_srv_mapping:
+        mapping = {'id': inst_name,
+                   'name': inst_name,
+                   'server_id': srv_name}
+        static_values.append(combine_data(
+            static_info, mapping, spec.get(EXTERNAL_INFO_KEY, None)))
     return static_values
 
 
